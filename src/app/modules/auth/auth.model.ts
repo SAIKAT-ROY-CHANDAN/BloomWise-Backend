@@ -11,9 +11,9 @@ export const userSchema = new Schema<TUser>({
     role: { type: String, enum: ['admin', 'user'], },
     address: { type: String },
     profileImage: { type: String },
-    followers: { type: String, default: '0' },
-    following: { type: String, default: '0' },
-    isFollowing: { type: Boolean, default: false } 
+    followerCount: { type: Number, default: 0 },
+    followingCount: { type: Number, default: 0 },
+    isFollowing: { type: Boolean, default: false }
 }, {
     toJSON: {
         transform(doc, ret) {

@@ -27,5 +27,11 @@ router.put('/update/:userId',
     AuthController.updateUser
 );
 
+router.post(
+    '/login',
+    // validateRequest(userValidation.userValidationSchema),
+    AuthController.loginUser
+)
+
 
 export const AuthRoutes = router;

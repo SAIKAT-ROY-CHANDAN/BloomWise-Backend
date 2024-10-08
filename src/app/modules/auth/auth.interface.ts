@@ -6,7 +6,7 @@ export type TUser = {
     role: 'user' | 'admin'; 
     address: string;
     profileImage?: string;
-    followers: string;
-    following: string;
+    followerCount: number;
+    followingCount: number;
     isFollowing: boolean;
 }
