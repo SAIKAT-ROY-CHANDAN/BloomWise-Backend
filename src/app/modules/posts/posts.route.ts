@@ -27,10 +27,15 @@ router.put(
     PostController.editPost
 );
 
+router.get('/', PostController.getPosts);
+
 router.delete('/delete/:id', authenticate, PostController.deletePost);
 
 router.post('/upvote/:id', authenticate, PostController.upvotePost);
 router.post('/downvote/:id', authenticate, PostController.downvotePost);
 
+router.post('/:postId/comments', authenticate, PostController.addComment);
+router.put('/:postId/comments/:commentId', authenticate, PostController.editComment);
+router.delete('/:postId/comments/:commentId', authenticate, PostController.deleteComment);
 
 export const PostRoutes = router;

@@ -9,9 +9,9 @@ const userValidationSchema = z.object({
         role: z.enum(['admin', 'user']),
         address: z.string().min(1).max(255).optional(),
         profileImage: z.string().optional(),
-        followers: z.string(),
-        following: z.string(),
-        isFollowing: z.boolean()
+        followers: z.string().optional(),
+        following: z.string().optional(),
+        isFollowing: z.boolean().optional()
     })
 })
 

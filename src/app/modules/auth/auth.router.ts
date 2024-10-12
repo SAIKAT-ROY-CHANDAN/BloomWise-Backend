@@ -9,15 +9,14 @@ const router = express.Router();
 router.post('/register',
     upload.single('profileImage'),
     (req: Request, res: Response, next: NextFunction) => {
-        req.body = JSON.parse(req.body.data)
-        next()
+        next();
     },
     validateRequest(userValidation.userValidationSchema),
     AuthController.createUser
 );
 
-router.put('/update/:userId', 
-    upload.single('profileImage'), 
+router.put('/update/:userId',
+    upload.single('profileImage'),
     (req: Request, res: Response, next: NextFunction) => {
         console.log(req.body);
         req.body = JSON.parse(req.body.data);

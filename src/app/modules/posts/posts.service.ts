@@ -1,6 +1,8 @@
+import mongoose from "mongoose";
 import { uploadToImgBB } from "../../utils/imageUpload";
 import PostModel from "./posts.model";
 import fs from 'fs'
+import QueryBuilder from "../../builder/QueryBuilder";
 
 const createPostIntoDB = async (postData: any, file?: Express.Multer.File) => {
     let imageUrl = '';
@@ -14,14 +16,34 @@ const createPostIntoDB = async (postData: any, file?: Express.Multer.File) => {
         }
     }
 
-    const postPayload = { 
-        ...postData, 
+    const postPayload = {
+        ...postData,
         image: imageUrl
     };
 
     const newPost = new PostModel(postPayload);
     await newPost.save();
     return newPost;
+};
+
+const getPostsFromDB = async (query: Record<string, unknown>) => {
+    const modelQuery = PostModel.find();
+    
+    const queryBuilder = new QueryBuilder(modelQuery, query);
+
+    // Apply search, filtering, sorting, pagination, and fields selection
+    queryBuilder.search(['title', 'content', 'category'])
+        .filter()
+        .sort()
+        .paginate()
+        .fields();
+
+    const posts = await queryBuilder.modelQuery.populate('createdBy', 'name'); // Populating `createdBy` with the user's name
+    
+    // Get the total post count and total pages for pagination
+    const totalInfo = await queryBuilder.countTotal();
+
+    return { posts, ...totalInfo };
 };
 
 const editPostIntoDB = async (postId: string, userId: string, updatedData: any, file?: Express.Multer.File) => {
@@ -79,25 +101,21 @@ const upvotePostIntoDB = async (postId: string, userId: string) => {
         throw new Error('You have already upvoted this post');
     }
 
-    // Check if the user has previously downvoted
     const hasDownvoted = await PostModel.findOne({
         _id: postId,
         downvotedBy: userId,
     });
 
-    // Prepare the update object
     const updateObj: any = {
         $push: { upvotedBy: userId },
         $inc: { upvotes: 1 },
     };
 
     if (hasDownvoted) {
-        // If the user has downvoted before, decrease the downvote count
         updateObj.$pull = { downvotedBy: userId };
         updateObj.$inc.downvotes = -1;
     }
 
-    // Update the post in the database
     const updatedPost = await PostModel.findByIdAndUpdate(
         postId,
         updateObj,
@@ -138,12 +156,10 @@ const downvotePostIntoDB = async (postId: string, userId: string) => {
     };
 
     if (hasUpvoted) {
-        // If the user had previously upvoted, remove their upvote and decrease the count
         updateObj.$pull = { upvotedBy: userId };
         updateObj.$inc.upvotes = -1;
     }
 
-    // Update the post with new downvote and handle upvote adjustment if needed
     const updatedPost = await PostModel.findByIdAndUpdate(
         postId,
         updateObj,
@@ -153,11 +169,102 @@ const downvotePostIntoDB = async (postId: string, userId: string) => {
     return updatedPost;
 };
 
+const addCommentIntoDB = async (postId: string, userId: string, commentText: string) => {
+    const post = await PostModel.findById(postId);
+    if (!post) {
+        throw new Error('Post not found');
+    }
+
+    const updatedPost = await PostModel.findByIdAndUpdate(
+        postId,
+        {
+            $push: {
+                comments: {
+                    commentText,
+                    createdBy: userId,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            },
+        },
+        { new: true }
+    );
+
+    return updatedPost;
+};
+
+const editCommentIntoDB = async (postId: string, commentId: string, userId: string, updatedText: string) => {
+
+    const post = await PostModel.findById(postId);
+    if (!post) {
+        throw new Error('Post not found');
+    }
+
+    const comment = post.comments.id(commentId);
+
+    if (!comment) {
+        throw new Error('Comment not found');
+    }
+
+    if (comment.createdBy.toString() !== userId) {
+        throw new Error('Unauthorized to edit this comment');
+    }
+
+    const updatedPost = await PostModel.updateOne(
+        { _id: postId, 'comments._id': commentId, 'comments.createdBy': userId },
+        {
+            $set: {
+                'comments.$.commentText': updatedText,
+                'comments.$.updatedAt': new Date(),
+            },
+        },
+        { new: true }
+    );
+
+    return updatedPost;
+};
+
+const deleteCommentIntoDB = async (postId: string, commentId: string, userId: string) => {
+    const post = await PostModel.findById(postId);
+    if (!post) {
+        throw new Error('Post not found');
+    }
+    const objectIdCommentId = new mongoose.Types.ObjectId(commentId);
+
+    const comment = post.comments.id(objectIdCommentId);
+
+    if (!comment) {
+        throw new Error('Comment not found');
+    }
+
+    if (comment.createdBy.toString() !== userId) {
+        throw new Error('Unauthorized to delete this comment');
+    }
+
+    const deletedPost = await PostModel.findByIdAndUpdate(
+        postId,
+        {
+            $pull: {
+                comments: { _id: commentId },
+            },
+        },
+        { new: true }
+    );
+
+    return deletedPost;
+};
+
+
+
 
 export const PostService = {
     createPostIntoDB,
     editPostIntoDB,
     deletePostIntoDB,
     upvotePostIntoDB,
-    downvotePostIntoDB
+    downvotePostIntoDB,
+    addCommentIntoDB,
+    editCommentIntoDB,
+    deleteCommentIntoDB,
+    getPostsFromDB
 };

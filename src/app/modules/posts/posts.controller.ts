@@ -16,6 +16,22 @@ const createPost = catchAsync(async (req, res) => {
     });
 });
 
+const getPosts = catchAsync(async (req, res) => {
+    const { posts, page, limit, total, totalPage } = await PostService.getPostsFromDB(req.query);
+
+    res.status(200).json({
+        success: true,
+        data: posts,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPage,
+        },
+    });
+});
+
+
 
 const editPost = catchAsync(async (req, res) => {
     const postId = req.params.id;
@@ -71,11 +87,56 @@ const downvotePost = catchAsync(async (req, res) => {
     });
 });
 
+const addComment = catchAsync(async (req, res) => {
+    const { postId } = req.params;
+    const { commentText } = req.body;
+    const userId = (req.user as JwtPayload).userId;
+
+    const updatedPost = await PostService.addCommentIntoDB(postId, userId, commentText);
+
+    res.status(200).json({
+        success: true,
+        message: 'Comment added successfully',
+        data: updatedPost,
+    });
+});
+
+const editComment = catchAsync(async (req, res) => {
+    const { postId, commentId } = req.params;
+    const { commentText } = req.body;
+    const userId = (req.user as JwtPayload).userId;
+
+    const updatedPost = await PostService.editCommentIntoDB(postId, commentId, userId, commentText);
+
+    res.status(200).json({
+        success: true,
+        message: 'Comment updated successfully',
+        data: updatedPost,
+    });
+});
+
+const deleteComment = catchAsync(async (req, res) => {
+    const { postId, commentId } = req.params;
+    const userId = (req.user as JwtPayload).userId;
+
+    const updatedPost = await PostService.deleteCommentIntoDB(postId, commentId, userId);
+
+    res.status(200).json({
+        success: true,
+        message: 'Comment deleted successfully',
+        data: updatedPost,
+    });
+});
+
 
 export const PostController = {
     createPost,
     editPost,
     deletePost,
     upvotePost,
-    downvotePost
+    downvotePost,
+    addComment,
+    editComment,
+    deleteComment,
+    getPosts
 };
