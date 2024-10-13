@@ -28,19 +28,15 @@ const createPostIntoDB = async (postData: any, file?: Express.Multer.File) => {
 
 const getPostsFromDB = async (query: Record<string, unknown>) => {
     const modelQuery = PostModel.find();
-    
     const queryBuilder = new QueryBuilder(modelQuery, query);
 
-    // Apply search, filtering, sorting, pagination, and fields selection
-    queryBuilder.search(['title', 'content', 'category'])
+    const test = queryBuilder.search(['title', 'content', 'category'])
         .filter()
         .sort()
-        .paginate()
         .fields();
 
-    const posts = await queryBuilder.modelQuery.populate('createdBy', 'name'); // Populating `createdBy` with the user's name
-    
-    // Get the total post count and total pages for pagination
+    const posts = await queryBuilder.modelQuery.populate('createdBy', 'name');
+
     const totalInfo = await queryBuilder.countTotal();
 
     return { posts, ...totalInfo };
@@ -72,7 +68,6 @@ const editPostIntoDB = async (postId: string, userId: string, updatedData: any, 
 
     return post;
 };
-
 
 const deletePostIntoDB = async (postId: string, userId: string) => {
     const post = await PostModel.findOneAndDelete({
@@ -125,7 +120,6 @@ const upvotePostIntoDB = async (postId: string, userId: string) => {
     return updatedPost;
 };
 
-
 const downvotePostIntoDB = async (postId: string, userId: string) => {
     const post = await PostModel.findById(postId);
 
@@ -133,7 +127,6 @@ const downvotePostIntoDB = async (postId: string, userId: string) => {
         throw new Error('Post not found');
     }
 
-    // Check if the user has already downvoted
     const hasDownvoted = await PostModel.findOne({
         _id: postId,
         downvotedBy: userId,
@@ -200,7 +193,8 @@ const editCommentIntoDB = async (postId: string, commentId: string, userId: stri
         throw new Error('Post not found');
     }
 
-    const comment = post.comments.id(commentId);
+    const comment = post.comments.find((comment) => comment._id.toString() === commentId);
+    // const comment = post.comments.id(commentId);
 
     if (!comment) {
         throw new Error('Comment not found');
@@ -229,9 +223,10 @@ const deleteCommentIntoDB = async (postId: string, commentId: string, userId: st
     if (!post) {
         throw new Error('Post not found');
     }
+
     const objectIdCommentId = new mongoose.Types.ObjectId(commentId);
 
-    const comment = post.comments.id(objectIdCommentId);
+    const comment = post.comments.find((comment) => comment._id.toString() === objectIdCommentId.toString());
 
     if (!comment) {
         throw new Error('Comment not found');
@@ -253,7 +248,6 @@ const deleteCommentIntoDB = async (postId: string, commentId: string, userId: st
 
     return deletedPost;
 };
-
 
 
 

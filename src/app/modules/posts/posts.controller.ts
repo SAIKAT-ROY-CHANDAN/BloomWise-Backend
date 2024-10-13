@@ -17,21 +17,15 @@ const createPost = catchAsync(async (req, res) => {
 });
 
 const getPosts = catchAsync(async (req, res) => {
-    const { posts, page, limit, total, totalPage } = await PostService.getPostsFromDB(req.query);
+    const result = await PostService.getPostsFromDB(req.query);
 
     res.status(200).json({
-        success: true,
-        data: posts,
-        pagination: {
-            page,
-            limit,
-            total,
-            totalPage,
-        },
+        data: result.posts,
+        total: result.total,
+        page: result.page,
+        totalPages: result.totalPage,
     });
 });
-
-
 
 const editPost = catchAsync(async (req, res) => {
     const postId = req.params.id;
@@ -47,7 +41,6 @@ const editPost = catchAsync(async (req, res) => {
         data: updatedPost,
     });
 });
-
 
 const deletePost = catchAsync(async (req, res) => {
     const postId = req.params.id;
