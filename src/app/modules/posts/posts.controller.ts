@@ -38,7 +38,7 @@ const getUserOwnPosts = catchAsync(async (req, res) => {
         totalPages: result.totalPage,
     });
 });
-;
+
 
 const editPost = catchAsync(async (req, res) => {
     const postId = req.params.id;

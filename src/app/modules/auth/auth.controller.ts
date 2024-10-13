@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import catchAsync from "../../utils/catchAsync"
 import { AuthService } from "./auth.service"
+import { JwtPayload } from "jsonwebtoken"
 
 
 const createUser = catchAsync(
@@ -17,11 +18,12 @@ const createUser = catchAsync(
 
 const updateUser = catchAsync(
     async (req: Request, res: Response) => {
-        const result = await AuthService.createUserIntoDB(req.body, req.file)
+        const userId = (req.user as JwtPayload).userId;
+        const result = await AuthService.updateUserInDB(userId, req.body, req.file)
 
         res.status(200).json({
             success: true,
-            message: 'User Registered successfully',
+            message: 'Profile Updated successfully',
             data: result
         })
     }
@@ -29,7 +31,7 @@ const updateUser = catchAsync(
 
 const loginUser = catchAsync(async (req, res) => {
     const result = await AuthService.loginUserIntoDB(req.body);
-    
+
     res.status(200).json({
         success: true,
         message: 'User Login successfully',

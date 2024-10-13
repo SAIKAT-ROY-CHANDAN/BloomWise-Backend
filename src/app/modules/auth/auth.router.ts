@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { userValidation } from './auth.validation';
 import { upload } from '../../utils/imageUpload';
+import { authenticate } from '../../middlewares/authenticate';
 
 const router = express.Router();
 
@@ -16,13 +17,13 @@ router.post('/register',
 );
 
 router.put('/update/:userId',
+    authenticate,
     upload.single('profileImage'),
     (req: Request, res: Response, next: NextFunction) => {
-        console.log(req.body);
         req.body = JSON.parse(req.body.data);
         next();
     },
-    validateRequest(userValidation.userValidationSchema),
+    validateRequest(userValidation.userUpdateValidationSchema),
     AuthController.updateUser
 );
 
