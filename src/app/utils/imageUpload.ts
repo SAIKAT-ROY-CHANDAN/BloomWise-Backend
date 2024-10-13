@@ -14,7 +14,7 @@ export const upload = multer({ storage });
 
 
 export const uploadImage = async (req: any, res: any) => {
-    console.log(req.body, 'body');
+
     upload.single('image')(req, res, async (err) => {
         if (err) {
             console.error('Upload Error:', err);
