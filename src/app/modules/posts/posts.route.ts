@@ -8,7 +8,7 @@ const router = express.Router();
 router.post(
     '/create',
     authenticate,
-    upload.single('postImage'),
+    // upload.single('postImage'),
     (req: Request, res: Response, next: NextFunction) => {
         req.body = JSON.parse(req.body.data)
         next()
@@ -19,7 +19,7 @@ router.post(
 router.put(
     '/edit/:id',
     authenticate,
-    upload.single('postImage'),
+    // upload.single('postImage'),
     (req: Request, res: Response, next: NextFunction) => {
         req.body = JSON.parse(req.body.data)
         next()
