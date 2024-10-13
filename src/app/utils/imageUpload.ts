@@ -5,7 +5,6 @@ import axios from 'axios';
 const storage = multer.memoryStorage(); // Store file in memory
 export const upload = multer({ storage });
 
-// Image upload handler
 export const uploadImage = async (req: any, res: any) => {
     console.log(req.file, 'from upload image');
 
