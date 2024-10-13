@@ -8,7 +8,7 @@ import { authenticate } from '../../middlewares/authenticate';
 const router = express.Router();
 
 router.post('/register',
-    // upload.single('profileImage'),
+    upload.single('profileImage'),
     (req: Request, res: Response, next: NextFunction) => {
         next();
     },
@@ -18,7 +18,7 @@ router.post('/register',
 
 router.put('/update/:userId',
     authenticate,
-    // upload.single('profileImage'),
+    upload.single('profileImage'),
     (req: Request, res: Response, next: NextFunction) => {
         req.body = JSON.parse(req.body.data);
         next();

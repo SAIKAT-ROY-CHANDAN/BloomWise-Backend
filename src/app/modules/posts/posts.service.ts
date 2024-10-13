@@ -7,10 +7,18 @@ import QueryBuilder from "../../builder/QueryBuilder";
 const createPostIntoDB = async (postData: any, file?: Express.Multer.File) => {
     let imageUrl = '';
 
+    // if (file) {
+    //     try {
+    //         imageUrl = await uploadToImgBB(file.path);
+    //         fs.unlinkSync(file.path);
+    //     } catch (error: any) {
+    //         throw new Error('Error uploading file to ImgBB: ' + error.message);
+    //     }
+    // }
     if (file) {
         try {
-            imageUrl = await uploadToImgBB(file.path);
-            fs.unlinkSync(file.path);
+            const base64Data = file.buffer.toString('base64');
+            imageUrl = await uploadToImgBB(base64Data);
         } catch (error: any) {
             throw new Error('Error uploading file to ImgBB: ' + error.message);
         }
@@ -20,6 +28,7 @@ const createPostIntoDB = async (postData: any, file?: Express.Multer.File) => {
         ...postData,
         image: imageUrl
     };
+
 
     const newPost = new PostModel(postPayload);
     await newPost.save();
@@ -58,16 +67,29 @@ const getUserOwnPostsFromDB = async (userId: string, query: Record<string, unkno
 const editPostIntoDB = async (postId: string, userId: string, updatedData: any, file?: Express.Multer.File) => {
     let imageUrl = '';
 
+    // if (file) {
+    //     try {
+    //         imageUrl = await uploadToImgBB(file.path);
+    //         fs.unlinkSync(file.path);
+
+    //         updatedData = { ...updatedData, image: imageUrl };
+    //     } catch (error: any) {
+    //         throw new Error('Error uploading file to ImgBB: ' + error.message);
+    //     }
+    // }
+
     if (file) {
         try {
-            imageUrl = await uploadToImgBB(file.path);
-            fs.unlinkSync(file.path);
+            const base64Data = file.buffer.toString('base64');
+    
+            imageUrl = await uploadToImgBB(base64Data);
 
             updatedData = { ...updatedData, image: imageUrl };
         } catch (error: any) {
             throw new Error('Error uploading file to ImgBB: ' + error.message);
         }
     }
+
 
     const post = await PostModel.findOneAndUpdate(
         { _id: postId, createdBy: userId },

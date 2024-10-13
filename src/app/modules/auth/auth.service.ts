@@ -11,11 +11,22 @@ import { uploadToImgBB } from "../../utils/imageUpload"
 const createUserIntoDB = async (payload: TUser, file?: Express.Multer.File) => {
     let imageUrl = '';
 
+    // if (file) {
+    //     try {
+    //         imageUrl = await uploadToImgBB(file.path);
+
+    //         fs.unlinkSync(file.path);
+    //     } catch (error: any) {
+    //         throw new Error('Error uploading file to ImgBB: ' + error.message);
+    //     }
+    // }
+
     if (file) {
         try {
-            imageUrl = await uploadToImgBB(file.path);
+            const base64Data = file.buffer.toString('base64');
+            
+            imageUrl = await uploadToImgBB(base64Data);
 
-            fs.unlinkSync(file.path);
         } catch (error: any) {
             throw new Error('Error uploading file to ImgBB: ' + error.message);
         }
@@ -33,15 +44,28 @@ const createUserIntoDB = async (payload: TUser, file?: Express.Multer.File) => {
 const updateUserInDB = async (userId: string, payload: Partial<TUser>, file?: Express.Multer.File) => {
     const updateData: Partial<TUser> = { ...payload };
 
+    // if (file) {
+    //     try {
+    //         const imageUrl = await uploadToImgBB(file.path);
+    //         updateData.profileImage = imageUrl;
+    //         fs.unlinkSync(file.path);
+    //     } catch (error: any) {
+    //         throw new Error('Error uploading file to ImgBB: ' + error.message);
+    //     }
+    // }
+
     if (file) {
         try {
-            const imageUrl = await uploadToImgBB(file.path);
+            const base64Data = file.buffer.toString('base64');
+            
+            const imageUrl = await uploadToImgBB(base64Data);
             updateData.profileImage = imageUrl;
-            fs.unlinkSync(file.path);
+
         } catch (error: any) {
             throw new Error('Error uploading file to ImgBB: ' + error.message);
         }
     }
+
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
         new: true,
