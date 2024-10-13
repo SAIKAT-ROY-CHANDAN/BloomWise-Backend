@@ -28,6 +28,7 @@ router.put(
 );
 
 router.get('/', PostController.getPosts);
+router.get('/user', authenticate, PostController.getUserOwnPosts);
 
 router.delete('/delete/:id', authenticate, PostController.deletePost);
 

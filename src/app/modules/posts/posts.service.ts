@@ -30,7 +30,7 @@ const getPostsFromDB = async (query: Record<string, unknown>) => {
     const modelQuery = PostModel.find();
     const queryBuilder = new QueryBuilder(modelQuery, query);
 
-    const test = queryBuilder.search(['title', 'content', 'category'])
+    queryBuilder.search(['title', 'content', 'category'])
         .filter()
         .sort()
         .fields();
@@ -41,6 +41,19 @@ const getPostsFromDB = async (query: Record<string, unknown>) => {
 
     return { posts, ...totalInfo };
 };
+
+const getUserOwnPostsFromDB = async (userId: string, query: Record<string, unknown>) => {
+    const modelQuery = PostModel.find({ createdBy: userId }).sort({ upvotes: -1 });
+
+    const queryBuilder = new QueryBuilder(modelQuery, query);
+
+    const posts = await queryBuilder.paginate().modelQuery.populate('createdBy', 'name');
+
+    const totalInfo = await queryBuilder.countTotal();
+
+    return { posts, ...totalInfo };
+};
+
 
 const editPostIntoDB = async (postId: string, userId: string, updatedData: any, file?: Express.Multer.File) => {
     let imageUrl = '';
@@ -260,5 +273,6 @@ export const PostService = {
     addCommentIntoDB,
     editCommentIntoDB,
     deleteCommentIntoDB,
-    getPostsFromDB
+    getPostsFromDB,
+    getUserOwnPostsFromDB
 };

@@ -27,6 +27,19 @@ const getPosts = catchAsync(async (req, res) => {
     });
 });
 
+const getUserOwnPosts = catchAsync(async (req, res) => {
+    const userId = (req.user as JwtPayload).userId;
+    const result = await PostService.getUserOwnPostsFromDB(userId, req.query);
+
+    res.status(200).json({
+        data: result.posts,
+        total: result.total,
+        page: result.page,
+        totalPages: result.totalPage,
+    });
+});
+;
+
 const editPost = catchAsync(async (req, res) => {
     const postId = req.params.id;
     const userId = (req.user as JwtPayload).userId;
@@ -131,5 +144,6 @@ export const PostController = {
     addComment,
     editComment,
     deleteComment,
-    getPosts
+    getPosts,
+    getUserOwnPosts
 };
