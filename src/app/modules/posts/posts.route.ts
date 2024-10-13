@@ -10,7 +10,6 @@ router.post(
     authenticate,
     upload.single('postImage'),
     (req: Request, res: Response, next: NextFunction) => {
-        console.log(req.body, req.file, 'from router');
         req.body = JSON.parse(req.body.data)
         next()
     },
