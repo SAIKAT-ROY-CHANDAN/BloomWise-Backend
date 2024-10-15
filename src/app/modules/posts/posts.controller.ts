@@ -39,7 +39,6 @@ const getUserOwnPosts = catchAsync(async (req, res) => {
     });
 });
 
-
 const editPost = catchAsync(async (req, res) => {
     const postId = req.params.id;
     const userId = (req.user as JwtPayload).userId;

@@ -63,7 +63,6 @@ const getUserOwnPostsFromDB = async (userId: string, query: Record<string, unkno
     return { posts, ...totalInfo };
 };
 
-
 const editPostIntoDB = async (postId: string, userId: string, updatedData: any, file?: Express.Multer.File) => {
     let imageUrl = '';
 
