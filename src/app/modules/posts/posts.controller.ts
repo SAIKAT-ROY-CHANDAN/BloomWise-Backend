@@ -118,6 +118,18 @@ const addComment = catchAsync(async (req, res) => {
     });
 });
 
+const getComments = catchAsync(async (req, res) => {
+    const { postId } = req.params;
+
+    const comments = await PostService.getCommentsFromDB(postId);
+
+    res.status(200).json({
+        success: true,
+        message: 'Comments retrieved successfully',
+        data: comments,
+    });
+});
+
 const editComment = catchAsync(async (req, res) => {
     const { postId, commentId } = req.params;
     const { commentText } = req.body;
@@ -157,5 +169,6 @@ export const PostController = {
     deleteComment,
     getPosts,
     getUserOwnPosts,
-    getSinglePosts
+    getSinglePosts,
+    getComments
 };

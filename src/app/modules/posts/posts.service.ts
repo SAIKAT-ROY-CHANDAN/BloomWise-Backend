@@ -3,6 +3,8 @@ import { uploadToImgBB } from "../../utils/imageUpload";
 import PostModel from "./posts.model";
 import fs from 'fs'
 import QueryBuilder from "../../builder/QueryBuilder";
+import AppError from "../../error/AppError";
+import httpStatus from "http-status";
 
 const createPostIntoDB = async (postData: any, file?: Express.Multer.File) => {
     let imageUrl = '';
@@ -207,6 +209,22 @@ const downvotePostIntoDB = async (postId: string, userId: string) => {
     return updatedPost;
 };
 
+const getCommentsFromDB = async (postId: string) => {
+    const post = await PostModel.findOne({ _id: postId }, 'comments')
+    .populate('comments.createdBy', 'username email profileImage');
+
+    if (!post) {
+        throw new Error('Post not found');
+    }
+
+    const sortedComments = post.comments.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return sortedComments;
+};
+
+
 const addCommentIntoDB = async (postId: string, userId: string, commentText: string) => {
     const post = await PostModel.findById(postId);
     if (!post) {
@@ -306,5 +324,6 @@ export const PostService = {
     deleteCommentIntoDB,
     getPostsFromDB,
     getUserOwnPostsFromDB,
-    getSinglePostFromDB
+    getSinglePostFromDB,
+    getCommentsFromDB
 };

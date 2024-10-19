@@ -31,12 +31,12 @@ router.put(
 
 router.get('/', PostController.getPosts);
 router.get('/user', authenticate, PostController.getUserOwnPosts);
-
 router.delete('/delete/:id', authenticate, PostController.deletePost);
 
 router.post('/upvote/:id', authenticate, PostController.upvotePost);
 router.post('/downvote/:id', authenticate, PostController.downvotePost);
 
+router.get('/:postId/comments', authenticate, PostController.getComments);
 router.post('/:postId/comments',
     authenticate,
     validateRequest(postValidationSchema.commentSchema),
