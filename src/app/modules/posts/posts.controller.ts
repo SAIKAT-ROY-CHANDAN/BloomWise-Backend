@@ -27,6 +27,17 @@ const getPosts = catchAsync(async (req, res) => {
     });
 });
 
+const getSinglePosts = catchAsync(async (req, res) => {
+    const result = await PostService.getPostsFromDB(req.query);
+
+    res.status(200).json({
+        data: result.posts,
+        total: result.total,
+        page: result.page,
+        totalPages: result.totalPage,
+    });
+});
+
 const getUserOwnPosts = catchAsync(async (req, res) => {
     const userId = (req.user as JwtPayload).userId;
     const result = await PostService.getUserOwnPostsFromDB(userId, req.query);
@@ -95,6 +106,7 @@ const downvotePost = catchAsync(async (req, res) => {
 const addComment = catchAsync(async (req, res) => {
     const { postId } = req.params;
     const { commentText } = req.body;
+    console.log(req.body, 'from contoller');
     const userId = (req.user as JwtPayload).userId;
 
     const updatedPost = await PostService.addCommentIntoDB(postId, userId, commentText);
@@ -144,5 +156,6 @@ export const PostController = {
     editComment,
     deleteComment,
     getPosts,
-    getUserOwnPosts
+    getUserOwnPosts,
+    getSinglePosts
 };

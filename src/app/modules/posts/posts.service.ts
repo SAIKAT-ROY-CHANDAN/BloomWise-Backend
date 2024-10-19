@@ -51,6 +51,17 @@ const getPostsFromDB = async (query: Record<string, unknown>) => {
     return { posts, ...totalInfo };
 };
 
+const getSinglePostFromDB = async (postId: string) => {
+    const post = await PostModel.findById(postId).populate('createdBy', 'name');
+
+    if (!post) {
+        throw new Error('Post not found');
+    }
+
+    return post;
+};
+
+
 const getUserOwnPostsFromDB = async (userId: string, query: Record<string, unknown>) => {
     const modelQuery = PostModel.find({ createdBy: userId }).sort({ upvotes: -1 });
 
@@ -80,7 +91,7 @@ const editPostIntoDB = async (postId: string, userId: string, updatedData: any, 
     if (file) {
         try {
             const base64Data = file.buffer.toString('base64');
-    
+
             imageUrl = await uploadToImgBB(base64Data);
 
             updatedData = { ...updatedData, image: imageUrl };
@@ -216,7 +227,6 @@ const addCommentIntoDB = async (postId: string, userId: string, commentText: str
         },
         { new: true }
     );
-
     return updatedPost;
 };
 
@@ -295,5 +305,6 @@ export const PostService = {
     editCommentIntoDB,
     deleteCommentIntoDB,
     getPostsFromDB,
-    getUserOwnPostsFromDB
+    getUserOwnPostsFromDB,
+    getSinglePostFromDB
 };

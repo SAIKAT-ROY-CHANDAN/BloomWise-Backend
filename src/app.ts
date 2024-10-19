@@ -10,7 +10,7 @@ const app: Application = express()
 app.use(express.json());
 // app.use(cors())
 const corsOptions = {
-  origin: true, // This allows all origins
+  origin: true,
   credentials: true,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: [

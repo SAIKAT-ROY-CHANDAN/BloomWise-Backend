@@ -2,6 +2,8 @@ import express, { NextFunction, Request, Response } from 'express';
 import { authenticate } from '../../middlewares/authenticate';
 import { PostController } from './posts.controller';
 import { upload } from '../../utils/imageUpload';
+import validateRequest from '../../middlewares/validateRequest';
+import { postValidationSchema } from './posts.validation';
 
 const router = express.Router();
 
@@ -35,7 +37,11 @@ router.delete('/delete/:id', authenticate, PostController.deletePost);
 router.post('/upvote/:id', authenticate, PostController.upvotePost);
 router.post('/downvote/:id', authenticate, PostController.downvotePost);
 
-router.post('/:postId/comments', authenticate, PostController.addComment);
+router.post('/:postId/comments',
+    authenticate,
+    validateRequest(postValidationSchema.commentSchema),
+    PostController.addComment
+);
 router.put('/:postId/comments/:commentId', authenticate, PostController.editComment);
 router.delete('/:postId/comments/:commentId', authenticate, PostController.deleteComment);
 
